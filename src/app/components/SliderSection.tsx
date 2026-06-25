@@ -1,153 +1,270 @@
 "use client";
 
-import { useState } from "react";
-import {
-  motion,
-  useTransform,
-  useMotionValueEvent,
-  Transition,
-  MotionValue
-} from "framer-motion";
-
-const gallery = [
-  { id: 1, img: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=2000&auto=format&fit=crop" },
-  { id: 2, img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2000&auto=format&fit=crop" },
-  { id: 3, img: "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=2000&auto=format&fit=crop" },
-  { id: 4, img: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?q=80&w=2000&auto=format&fit=crop" },
-  { id: 5, img: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?q=80&w=2000&auto=format&fit=crop" },
-  { id: 6, img: "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?q=80&w=2000&auto=format&fit=crop" },
-  { id: 7, img: "https://images.unsplash.com/photo-1414609245224-afa02bfb3fda?q=80&w=2000&auto=format&fit=crop" },
-  { id: 8, img: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2000&auto=format&fit=crop" },
-];
-
-const numbers = Array.from({ length: gallery.length }, (_, i) => i + 1);
-
-const sharedSpring: Transition = {
-  type: "spring",
-  stiffness: 80,
-  damping: 18,
-  mass: 0.2,
-};
+import { useRef, useEffect } from "react";
+import { motion, useTransform, MotionValue, Variants } from "framer-motion";
 
 interface SliderSectionProps {
   smoothScroll: MotionValue<number>;
 }
 
-export default function SliderSection({ smoothScroll }: SliderSectionProps) {
-  const [activeIndex, setActiveIndex] = useState(1);
+const SKILLS = [
+  "REACT.JS",
+  "NEXT.JS",
+  "TYPESCRIPT",
+  "FRAMER MOTION",
+  "THREE.JS",
+  "TAILWIND",
+  "SUPABASE",
+  "SANITY",
+  "NODE.JS"
+];
 
-  useMotionValueEvent(smoothScroll, "change", (latest) => {
-    // Waits until the pan actually begins at 0.70
-    if (latest < 0.70) {
-      if (activeIndex !== 1) setActiveIndex(1);
-    } else {
-      // Adjusted math for the 0.20 pan depth (0.70 to 0.90) divided by 7 gaps
-      const index = Math.round(((latest - 0.70) / 0.028571) + 1);
-      const clampedIndex = Math.max(1, Math.min(8, index));
-      if (clampedIndex !== activeIndex) {
-        setActiveIndex(clampedIndex);
-      }
-    }
-  });
+const SECONDARY_SKILLS = [
+  "Web design",
+  "API Integration",
+  "Git & Version Control",
+  "Search engine optimization (SEO)",
+  "Deployment & Hosting"
+];
 
-  // Fade in the counter
-  const counterOpacity = useTransform(smoothScroll, [0.60, 0.65], [0, 1]);
+const SCROLL_START = 0.45;
 
-  // Text Tracking Animation: Starts as soon as section locks (0.60) and stretches slightly to the very end (1.0)
-  const titleTracking = useTransform(smoothScroll, [0.60, 1.0], ["0.025em", "0.075em"], { clamp: true });
+const titleContainerVars: Variants = {
+  hidden: { opacity: 1 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15, delayChildren: 0.5 },
+  },
+};
 
-  // Phase 1: Sizing & Positioning (0.60 to 0.70)
-  const firstWidth = useTransform(smoothScroll, [0.60, 0.70], ["65vw", "18vw"], { clamp: true });
-  const firstHeight = useTransform(smoothScroll, [0.60, 0.70], ["65vh", "55vh"], { clamp: true });
-  const trackPaddingLeft = useTransform(smoothScroll, [0.60, 0.70], ["17.5vw", "41vw"], { clamp: true });
-  const firstRadius = useTransform(smoothScroll, [0.60, 0.70], ["12px", "4px"], { clamp: true });
-  const firstImageScale = useTransform(smoothScroll, [0.60, 0.70], [1, 1.3], { clamp: true });
+const skewedTextVars: Variants = {
+  hidden: { y: "150%", rotateZ: 8, opacity: 0 },
+  visible: {
+    y: "0%",
+    rotateZ: 0,
+    opacity: 1,
+    transition: { type: "spring", damping: 20, stiffness: 120 },
+  },
+};
 
-  // Phase 2: Stretched heavy horizontal pan (0.70 to 0.90)
-  const firstImageX = useTransform(smoothScroll, [0.70, 0.90], ["0vw", "4vw"], { clamp: true });
-  const trackX = useTransform(smoothScroll, [0.70, 0.90], ["0vw", "-140vw"]);
-  const tileParallaxX = useTransform(smoothScroll, [0.70, 0.90], ["-11vw", "11vw"]);
+function SkillItem({
+  skill,
+  index,
+  travelNum
+}: {
+  skill: string;
+  index: number;
+  travelNum: MotionValue<number>;
+}) {
+  const wordHeightVh = 14;
+  const peak = -(50 + (wordHeightVh / 2) + index * wordHeightVh);
+
+  const opacity = useTransform(
+    travelNum,
+    [peak - 25, peak - 2, peak + 2, peak + 25],
+    [0.25, 1, 1, 0.25] 
+  );
 
   return (
-    <div className="relative w-full h-full flex items-center bg-[#0a0a0a] overflow-hidden">
+    <motion.div
+      className="text-light text-[9vw] font-bold uppercase leading-[0.85] tracking-tighter"
+      style={{ opacity }}
+    >
+      {skill}
+    </motion.div>
+  );
+}
 
-      {/* THE SOLID BLACK MASK */}
-      <div className="absolute left-0 top-0 h-full w-[10vw] bg-[#0a0a0a] z-40 pointer-events-none"></div>
+function SecondarySkillsItem({
+  index,
+  travelNum
+}: {
+  index: number;
+  travelNum: MotionValue<number>;
+}) {
+  const wordHeightVh = 14;
+  const peak = -(50 + (wordHeightVh / 2) + index * wordHeightVh);
 
-      {/* THE ANIMATED VERTICAL 'SKILLS' TITLE */}
-      <div className="absolute left-[-1vw] top-0 h-full flex items-center z-50 pointer-events-none">
-        <motion.h2 
-          className="text-white text-[8rem] uppercase font-durer tracking-wide" 
-          style={{ 
-            writingMode: 'vertical-rl', 
+  const opacity = useTransform(
+    travelNum,
+    [peak - 25, peak - 2, peak + 2, peak + 25],
+    [0.25, 1, 1, 0.25] 
+  );
+
+  return (
+    <motion.div
+      className="flex items-center gap-2 text-light text-[1vw] font-normal tracking-wide uppercase pt-8"
+      style={{ opacity }}
+    >
+      {SECONDARY_SKILLS.map((skill, i) => (
+        <span key={i} className="flex items-center gap-2">
+          <span>{skill}</span>
+          {i !== SECONDARY_SKILLS.length - 1 && (
+            <span className="text-accent text-[0.8em]">✦</span>
+          )}
+        </span>
+      ))}
+    </motion.div>
+  );
+}
+
+export default function SliderSection({ smoothScroll }: SliderSectionProps) {
+  const titleTracking = useTransform(smoothScroll, [0.55, 1.0], ["0.020em", "0.070em"], { clamp: true });
+  const travelNum = useTransform(smoothScroll, [0, SCROLL_START, 1], [0, 0, -270]);
+  const listY = useTransform(travelNum, val => `${val}vh`);
+
+  const starContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = starContainerRef.current;
+    if (!container) return;
+    
+    container.innerHTML = '';
+
+    const count = 100;
+    const stars: { el: HTMLDivElement; initialY: number; speed: number }[] = [];
+
+    for (let i = 0; i < count; i++) {
+      const s = document.createElement('div');
+      s.className = 'bg-star absolute bg-white rounded-full opacity-80 will-change-transform';
+
+      const x = Math.random() * 100;
+      const y = Math.random() * 100; 
+      
+      const isStatic = Math.random() < 0.3;
+      const z = isStatic ? 0 : 0.2 + Math.random() * 0.6; 
+      const size = isStatic ? 1 + Math.random() : 1 + Math.random() * 2; 
+
+      s.style.left = x + '%';
+      s.style.top = y + '%';
+      s.style.width = size + 'px';
+      s.style.height = size + 'px';
+
+      s.style.setProperty('--duration', (2 + Math.random() * 4) + 's');
+      s.style.animation = `twinkle var(--duration) infinite ease-in-out`;
+      s.style.animationDelay = (Math.random() * 5) + 's';
+
+      container.appendChild(s);
+      stars.push({ el: s, initialY: y, speed: z });
+    }
+
+    let animationFrameId: number;
+
+    const render = () => {
+      const scrollVal = smoothScroll.get() * 4000; 
+      
+      const rawVelocity = smoothScroll.getVelocity(); 
+      const fakeVelocity = isNaN(rawVelocity) ? 0 : rawVelocity * 20; 
+      const stretch = Math.max(1, Math.min(1 + Math.abs(fakeVelocity) * 0.15, 4));
+
+      stars.forEach(star => {
+        if (star.speed === 0) {
+          star.el.style.transform = 'scaleY(1)';
+          return;
+        }
+
+        let pos = (star.initialY - (scrollVal * star.speed * 0.05)) % 100;
+        if (pos < 0) pos += 100; 
+
+        star.el.style.top = pos + '%';
+        star.el.style.transform = `scaleY(${stretch})`;
+      });
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+    
+    render();
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [smoothScroll]);
+
+  return (
+    <div className="relative w-full h-[100vh] flex items-center justify-center bg-dark overflow-hidden border-l-[7px] border-light">
+      
+      <style>{`
+        @keyframes twinkle {
+          0%, 100% { opacity: 0.3; transform: scale(0.8); }
+          50% { opacity: 1; transform: scale(1.2); }
+        }
+      `}</style>
+
+      <div 
+        ref={starContainerRef} 
+        className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden" 
+      />
+
+      <motion.div 
+        initial={{ scaleY: 0 }}
+        whileInView={{ scaleY: 1 }}
+        viewport={{ once: true, amount: 0.4 }}
+        transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] }}
+        className="absolute left-0 top-0 h-full w-[10vw] bg-accent z-40 pointer-events-none origin-top"
+      />
+
+      <div className="absolute left-[4.5vw] top-3 h-full flex items-center z-50 pointer-events-none">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.4 }}
+          variants={titleContainerVars}
+          className="flex gap-[0.2em] text-light text-[6.5rem] font-dirtyline tracking-wide"
+          style={{
+            writingMode: 'vertical-rl',
             transform: 'rotate(180deg)',
-            letterSpacing: titleTracking 
+            letterSpacing: titleTracking
           }}
         >
-          Skills
-        </motion.h2>
+          <span className="overflow-hidden block py-2">
+            <motion.span variants={skewedTextVars} className="block">teCh</motion.span>
+          </span>
+          <span className="overflow-hidden block py-2">
+            <motion.span variants={skewedTextVars} className="block">stAck</motion.span>
+          </span>
+        </motion.div>
       </div>
 
-      <motion.div
-        className="flex h-full items-center gap-[2vw]"
-        style={{ x: trackX, paddingLeft: trackPaddingLeft }}
-      >
-        {gallery.map((item, index) => {
-          const isFirst = index === 0;
+      <div className="absolute inset-0 flex justify-center items-start pt-[100vh] pl-[15vw] pointer-events-none overflow-hidden z-10">
+        <motion.div
+          className="flex flex-col items-center justify-start gap-0"
+          style={{ y: listY }}
+        >
+          {SKILLS.map((skill, index) => (
+            <SkillItem
+              key={index}
+              skill={skill}
+              index={index}
+              travelNum={travelNum}
+            />
+          ))}
+          <SecondarySkillsItem 
+            index={SKILLS.length} 
+            travelNum={travelNum} 
+          />
+        </motion.div>
+      </div>
 
-          return (
-            <motion.div
-              key={item.id}
-              className="relative shrink-0 flex items-center"
-              style={{
-                width: isFirst ? firstWidth : "18vw",
-                height: isFirst ? firstHeight : "55vh",
-              }}
-            >
-              <motion.div
-                className="absolute inset-0 overflow-hidden bg-neutral-900 shadow-2xl origin-center"
-                style={{ borderRadius: isFirst ? firstRadius : "4px" }}
-              >
-                <motion.div
-                  className="absolute top-0 h-full will-change-transform origin-center"
-                  style={
-                    isFirst
-                      ? { width: "100%", left: "0%", scale: firstImageScale, x: firstImageX }
-                      : { width: "220%", left: "-60%", scale: 1, x: tileParallaxX }
-                  }
-                >
-                  <img
-                    src={item.img}
-                    alt={`Gallery image`}
-                    className="absolute inset-0 w-full h-full object-cover origin-center"
-                  />
-                </motion.div>
-              </motion.div>
-            </motion.div>
-          );
-        })}
-      </motion.div>
-
-      <motion.div
-        style={{ opacity: counterOpacity }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-3 text-white text-sm tracking-wide font-normal pointer-events-none z-50"
-      >
-        <div className="relative h-[1.2em] w-[1ch] overflow-hidden">
-          <motion.div
-            className="flex flex-col will-change-transform"
-            animate={{ y: `-${(activeIndex - 1) * 1.2}em` }}
-            transition={sharedSpring}
-          >
-            {numbers.map((num) => (
-              <span key={num} className="h-[1.2em] flex items-center justify-center leading-none">
-                {num}
-              </span>
-            ))}
-          </motion.div>
-        </div>
-        <span className="opacity-60">—</span>
-        <span className="opacity-60">8</span>
-      </motion.div>
+      <div className="absolute inset-0 z-20 flex flex-col items-center pl-[15vw] justify-center pointer-events-none mix-blend-difference">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.6 }}
+          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+          className="text-light text-sm font-mono tracking-widest z-100 uppercase mb-[30vh]"
+        >
+          [WHAT I USE]
+        </motion.div>
+        
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.6 }}
+          transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+          className="text-light text-md tracking-wide text-center max-w-lg mt-[10vh]"
+        >
+          Skills are frameworks of thinking, they allow me to
+          transform ideas into structured, interactive environments
+        </motion.div>
+      </div>
 
     </div>
   );

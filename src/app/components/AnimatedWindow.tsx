@@ -15,12 +15,12 @@ export default function AnimatedWindow({ smoothScroll, mouseX }: AnimatedWindowP
   });
 
   // Window animation sequence
-  const windowWidth = useTransform(smoothScroll, [0, 0.25], ["33vw", "96vw"]);
-  const windowHeight = useTransform(smoothScroll, [0, 0.25], ["40vh", "92vh"]);
-  const windowY = useTransform(smoothScroll, [0, 0.25], ["0vh", "-10vh"]);
+  const windowWidth = useTransform(smoothScroll, [0, 0.15], ["33vw", "96vw"]);
+  const windowHeight = useTransform(smoothScroll, [0, 0.15], ["40vh", "92vh"]);
+  const windowY = useTransform(smoothScroll, [0, 0.15], ["0vh", "-10vh"]);
   const windowBorderRadius = useTransform(
     smoothScroll,
-    [0, 0.25],
+    [0, 0.15],
     ["0.5rem", "1.25rem"]
   );
   
@@ -31,8 +31,8 @@ export default function AnimatedWindow({ smoothScroll, mouseX }: AnimatedWindowP
     const currentMouseX = smoothMouseX.get();
     const currentScroll = smoothScroll.get();
 
-    if (currentScroll >= 0.25) return 0;
-    const fadeMultiplier = 1 - currentScroll / 0.25;
+    if (currentScroll >= 0.15) return 0;
+    const fadeMultiplier = 1 - currentScroll / 0.15;
 
     return currentMouseX * fadeMultiplier;
   });

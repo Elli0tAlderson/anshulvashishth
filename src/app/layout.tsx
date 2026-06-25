@@ -2,10 +2,17 @@ import localFont from "next/font/local";
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import Cursor from "./components/Cursor";
-// import Loader from "./components/Loader";
+import SmoothScrolling from "./components/SmoothScrolling";
+import Loader from "./components/Loader";
+import { LoadingProvider } from "./components/LoadingContext";
+
+const dirtyline = localFont({
+  src: "../../public/fonts/Dirtyline.otf", 
+  variable: "--font-dirtyline",
+});
 
 const durer = localFont({
-  src: "../../public/fonts/Durer.otf",
+  src: "../../public/fonts/Durer.otf", 
   variable: "--font-durer",
 });
 
@@ -18,10 +25,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${durer.variable} ${geist.variable} font-sans antialiased`}>
-        {/* <Loader /> */}
-        <Cursor />
-        {children}
+      <body className={`${dirtyline.variable} ${durer.variable} ${geist.variable} font-sans antialiased`}>
+        <LoadingProvider>
+          <Loader />
+          <Cursor />
+          <SmoothScrolling>
+            {children}
+          </SmoothScrolling>
+        </LoadingProvider>
       </body>
     </html>
   );

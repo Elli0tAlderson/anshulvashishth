@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { useLoading } from "./LoadingContext";
 
 const MaskedChar = ({ char, index }: { char: string; index: number }) => (
   <span
@@ -14,7 +15,7 @@ const MaskedChar = ({ char, index }: { char: string; index: number }) => (
 );
 
 const BrandText = () => (
-  <div className="relative z-20 font-black text-[7.5vw] uppercase tracking-tighter text-black flex items-center justify-center w-full h-full">
+  <div className="relative z-20 font-black text-[7.5vw] uppercase tracking-tighter text-light flex items-center justify-center w-full h-full">
     <div className="flex items-start relative">
       <div className="letter-a inline-block leading-none h-[0.88em] origin-bottom-right">A</div>
 
@@ -47,6 +48,7 @@ export default function Loader() {
   const container = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLSpanElement>(null);
   const [isComplete, setIsComplete] = useState(false);
+  const { setIsLoaderFinished } = useLoading();
 
   useGSAP(
     () => {
@@ -67,7 +69,13 @@ export default function Loader() {
       tl.add("drawSplit", 3.9);
       tl.add("split", 5.0);
 
-      // Loading Counter
+      //  TEXT ENTRY ANIMATION
+      tl.from(".ui-text-inner", {
+        yPercent: 120,
+        duration: 1.2,
+        ease: "expo.out"
+      }, "start");
+
       const counterProxy = { val: 0 };
       tl.to(counterProxy, {
         val: 100,
@@ -80,7 +88,6 @@ export default function Loader() {
         }
       }, "start"); 
 
-      // Domino Drop
       for (let i = 0; i < 14; i++) {
         tl.to(
           `.falling-letter-${i}`,
@@ -93,27 +100,23 @@ export default function Loader() {
         );
       }
 
-      // Roller Scroll
       tl.to(".new-v", {
         yPercent: 0,
         duration: 0.6,
         ease: "power3.inOut",
       }, "start+=0.99");
 
-      // Center Move 
       tl.to(".letter-a", {
         x: "32.5vw", 
         duration: 1.2,
         ease: "expo.inOut",
       }, "movePhase")
-
       .to(".target-v-container", {
         x: "-23.5vw", 
         duration: 1.2,
         ease: "expo.inOut",
       }, "movePhase");
 
-      // Superscript Morph 
       tl.to(".target-v-container", {
         x: "-26vw", 
         scale: 2, 
@@ -121,7 +124,6 @@ export default function Loader() {
         duration: 1.2,
         ease: "expo.inOut",
       }, "scalePhase")
-
       .to(".letter-a", {
         x: "26vw", 
         y: "-5vw", 
@@ -131,27 +133,39 @@ export default function Loader() {
         ease: "expo.inOut",
       }, "scalePhase");
 
-      // Cut-out Wipe
       tl.to(".peel-wipe", {
         attr: { width: 1.2 }, 
         duration: 1, 
         ease: "power4.inOut", 
       }, "drawSplit");
 
-      // Open Gates 
+      tl.call(() => {
+        setIsLoaderFinished(true);
+      }, undefined, "split+=0.5");
+
+      // --- UI TEXT EXIT ANIMATION ---
+      tl.to(".ui-text-top .ui-text-inner", {
+        yPercent: -120,
+        duration: 1.2,
+        ease: "expo.inOut",
+      }, "split-=0.2")
+      .to(".ui-text-bottom .ui-text-inner", {
+        yPercent: 120,
+        duration: 1.2,
+        ease: "expo.inOut",
+      }, "split-=0.2");
+      // ------------------------------
+
       tl.to(".loader-top", {
         yPercent: -100,
         duration: 1.5,
         ease: "expo.inOut",
       }, "split")
-
       .to(".loader-bottom", {
         yPercent: 100,
         duration: 1.5,
         ease: "expo.inOut",
       }, "split")
-
-      // Cleanup
       .to(container.current, {
         opacity: 0,
         duration: 0.4,
@@ -179,11 +193,11 @@ export default function Loader() {
       </svg>
 
       <div 
-        className="loader-top absolute left-0 top-0 w-full h-[calc(50vh+2px)] bg-[#E8FF00] overflow-hidden z-20"
+        className="loader-top absolute left-0 top-0 w-full h-[calc(50vh+2px)] bg-accent overflow-hidden z-20"
         style={{ WebkitMaskImage: "url(#top-mask)", maskImage: "url(#top-mask)" }}
       >
-        <div className="absolute top-[12vh] left-[8vw] text-sm md:text-[0.9vw] font-medium tracking-wide text-black z-30">
-          HELLO
+        <div className="ui-text ui-text-top absolute top-[12vh] left-[8vw] text-sm md:text-[0.9vw] font-medium tracking-wide text-light z-30 overflow-hidden">
+          <span className="ui-text-inner block">HELLO</span>
         </div>
 
         <div className="absolute top-0 left-0 w-full h-[100vh]">
@@ -192,16 +206,18 @@ export default function Loader() {
       </div>
 
       <div 
-        className="loader-bottom absolute left-0 bottom-0 w-full h-[50vh] bg-[#E8FF00] overflow-hidden z-10"
+        className="loader-bottom absolute left-0 bottom-0 w-full h-[50vh] bg-accent overflow-hidden z-10"
         style={{ WebkitMaskImage: "url(#bottom-mask)", maskImage: "url(#bottom-mask)" }}
       >
-        <div className="absolute bottom-[10vh] left-[25vw] text-sm md:text-[0.9vw] font-medium tracking-wide text-black z-30">
-          FRIEND
+        <div className="ui-text ui-text-bottom absolute bottom-[10vh] left-[25vw] text-sm md:text-[0.9vw] font-medium tracking-wide text-light z-30 overflow-hidden">
+          <span className="ui-text-inner block">FRIEND</span>
         </div>
 
-        <div className="absolute bottom-[25vh] right-[8vw] text-sm md:text-[0.9vw] font-medium tracking-wide text-black z-30 flex items-center gap-1">
-          <span>LOADING</span>
-          <span ref={counterRef} className="inline-block w-[3ch] text-right tabular-nums">0</span>
+        <div className="ui-text ui-text-bottom absolute bottom-[25vh] right-[8vw] text-sm md:text-[0.9vw] font-medium tracking-wide text-light z-30 overflow-hidden">
+          <span className="ui-text-inner flex items-center gap-1">
+            <span>LOADING</span>
+            <span ref={counterRef} className="inline-block w-[3ch] text-right tabular-nums">0</span>
+          </span>
         </div>
 
         <div className="absolute bottom-0 left-0 w-full h-[100vh]">

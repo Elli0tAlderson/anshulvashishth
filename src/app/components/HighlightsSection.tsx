@@ -1,36 +1,163 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
+import Image from "next/image";
+import {
+  motion,
+  AnimatePresence,
+  useSpring,
+  useMotionValue
+} from "framer-motion";
 
+// --- DATA ---
 const projects = [
   {
     num: "01",
-    title: "FOCUS ON STRETCH PLEATS",
-    img: "https://images.unsplash.com/photo-1776811789960-0de476026ce1?q=80&w=1170&auto=format&fit=crop",
+    title: "eNipp",
+    img: "/assets/enipp.png", 
   },
   {
     num: "02",
-    title: "LEVEL OF DISTANCE",
-    img: "https://images.unsplash.com/photo-1777042575928-366908c3ee3f?q=80&w=1170&auto=format&fit=crop",
+    title: "heAthen's cOre",
+    img: "/assets/heath.png",
   },
   {
     num: "03",
-    title: "IPSA AQUA PLAY ART",
-    img: "https://images.unsplash.com/photo-1480796927426-f609979314bd?q=80&w=1170&auto=format&fit=crop",
+    title: "eNipp 2.0",
+    img: "/assets/enipp2.png",
   },
   {
     num: "04",
-    title: "ATELIER WEN",
-    img: "https://images.unsplash.com/photo-1669326926304-b8cd6ecda8ec?q=80&w=1170&auto=format&fit=crop",
-  },
-  {
-    num: "05",
-    title: "3D: MIX",
-    img: "https://images.unsplash.com/photo-1539722664268-3a5f9810b69f?w=600&auto=format&fit=crop",
+    title: "One finAnciAl",
+    img: "/assets/onefi.png",
   },
 ];
 
+const marqueeImages = [
+  "/assets/elliot.jpeg",
+  "/assets/waves.png",
+  "/assets/arcadia.webp"
+];
+
+// --- MARQUEE COMPONENT ---
+function VelocityMarquee() {
+  const [isHovered, setIsHovered] = useState(false);
+  const pairs = [0, 1, 2, 3, 4, 5];
+  const textString = "think/diffeRently";
+
+  // The base content block
+  const marqueeContent = pairs.map((index) => (
+    <div key={index} className="flex items-center gap-6 md:gap-10 px-4 h-full">
+      <span className="text-[80px] md:text-[80px] font-bold font-dirtyline tracking-wide leading-[0.8] text-dark flex items-center h-full pt-3 whitespace-nowrap">
+        {textString}
+      </span>
+      
+      <div className="relative w-[180px] h-[80px] md:w-[150px] md:h-[70px] rounded-[100px] overflow-hidden shrink-0 bg-dark/20 flex items-center justify-center">
+        <Image
+          src={marqueeImages[index % 3]} 
+          alt={`Marquee visual ${index + 1}`}
+          fill
+          sizes="(max-width: 768px) 180px, 220px"
+          className="object-cover"
+        />
+      </div>
+    </div>
+  ));
+
+  return (
+    <div 
+      className="relative w-full overflow-hidden flex items-center mt-[20vh] mb-[15vh] z-20"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* PARENT CONTAINER */}
+      <motion.div 
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.4 }}
+        className="relative w-full h-[100px] md:h-[85px] flex items-center"
+      >
+        
+        {/* TOP STRIP */}
+        <motion.div
+          className="absolute inset-0 bg-light border-t border-light/20 z-10"
+          style={{ clipPath: "inset(0 0 50% 0)" }}
+          variants={{
+            hidden: { x: "100vw" },
+            visible: { x: "0vw", transition: { duration: 1, ease: [0.76, 0, 0.24, 1] } }
+          }}
+        >
+          {/* Hover Fill */}
+          <motion.div className="absolute top-0 left-0 h-full bg-accent z-0 origin-left" style={{ width: "50%" }} initial={{ scaleX: 0 }} animate={{ scaleX: isHovered ? 1 : 0 }} transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] }} />
+          <motion.div className="absolute top-0 right-0 h-full bg-accent z-0 origin-right" style={{ width: "50%" }} initial={{ scaleX: 0 }} animate={{ scaleX: isHovered ? 1 : 0 }} transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] }} />
+
+          {/* Text Layer */}
+          <div className="absolute inset-0 z-10">
+            <motion.div 
+              className="flex items-center h-full w-max"
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{ ease: "linear", duration: 40, repeat: Infinity }}
+            >
+              <div className="flex items-center shrink-0 h-full">{marqueeContent}</div>
+              <div className="flex items-center shrink-0 h-full">{marqueeContent}</div>
+            </motion.div>
+          </div>
+        </motion.div>
+
+        {/* BOTTOM STRIP */}
+        <motion.div
+          className="absolute inset-0 bg-light border-b border-light/20 shadow-2xl z-10"
+          style={{ clipPath: "inset(50% 0 0 0)" }}
+          variants={{
+            hidden: { x: "-100vw" },
+            visible: { x: "0vw", transition: { duration: 1, ease: [0.76, 0, 0.24, 1] } }
+          }}
+        >
+          {/* Hover Fill */}
+          <motion.div className="absolute top-0 left-0 h-full bg-accent z-0 origin-left" style={{ width: "50%" }} initial={{ scaleX: 0 }} animate={{ scaleX: isHovered ? 1 : 0 }} transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] }} />
+          <motion.div className="absolute top-0 right-0 h-full bg-accent z-0 origin-right" style={{ width: "50%" }} initial={{ scaleX: 0 }} animate={{ scaleX: isHovered ? 1 : 0 }} transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] }} />
+
+          {/* Bottom Text ALIGNED */}
+          <motion.div 
+            className="absolute inset-0 z-10" 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isHovered ? 1 : 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <motion.div 
+              className="flex items-center h-full w-max"
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{ ease: "linear", duration: 40, repeat: Infinity }}
+            >
+              <div className="flex items-center shrink-0 h-full">{marqueeContent}</div>
+              <div className="flex items-center shrink-0 h-full">{marqueeContent}</div>
+            </motion.div>
+          </motion.div>
+
+          {/* Bottom Text OPPOSITE */}
+          <motion.div 
+            className="absolute inset-0 z-10" 
+            initial={{ opacity: 1 }}
+            animate={{ opacity: isHovered ? 0 : 1 }}
+            transition={{ duration: 0.4 }}
+          >
+            <motion.div 
+              className="flex items-center h-full w-max"
+              animate={{ x: ["-50%", "0%"] }}
+              transition={{ ease: "linear", duration: 40, repeat: Infinity }}
+            >
+              <div className="flex items-center shrink-0 h-full">{marqueeContent}</div>
+              <div className="flex items-center shrink-0 h-full">{marqueeContent}</div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+
+      </motion.div>
+    </div>
+  );
+}
+
+// --- MAIN SECTION COMPONENT ---
 export default function HighlightsSection() {
   const [hoverState, setHoverState] = useState<{
     index: number | null;
@@ -42,10 +169,10 @@ export default function HighlightsSection() {
     id: 0,
   });
 
-  // CRITICAL FIX: Safely grab the active project to prevent undefined errors during fast unmounts
-  const activeProject = hoverState.lastIndex !== null && hoverState.lastIndex !== undefined
-    ? projects[hoverState.lastIndex]
-    : null;
+  const activeProject =
+    hoverState.lastIndex !== null && hoverState.lastIndex !== undefined
+      ? projects[hoverState.lastIndex]
+      : null;
 
   const duration = 1.2;
   const ease = [0.25, 1, 0.5, 1] as const;
@@ -58,7 +185,7 @@ export default function HighlightsSection() {
 
   useEffect(() => {
     projects.forEach((project) => {
-      const img = new Image();
+      const img = new window.Image();
       img.src = project.img;
     });
 
@@ -89,24 +216,23 @@ export default function HighlightsSection() {
   };
 
   return (
-    <section className="relative w-full bg-[#f4f4f4] py-[15vh] text-zinc-950">
-
-      {/* FIXED IMAGE CONTAINER */}
+    <section className="relative w-full bg-dark pt-[15vh] text-light overflow-hidden">
+      {/* Fixed image container */}
       <motion.div
-        className="fixed top-0 left-0 z-10 w-[35vw] max-w-[450px] pointer-events-none -translate-x-1/2 -translate-y-1/2 overflow-hidden"
+        className="fixed top-0 left-0 z-10 w-[35vw] max-w-[500px] pointer-events-none -translate-x-1/2 -translate-y-1/2 "
         style={{
-          aspectRatio: "4/3",
+          aspectRatio: "2.2/1",
           x: smoothX,
-          y: smoothY
+          y: smoothY,
         }}
         initial={{ clipPath: "inset(50% 0 50% 0)" }}
         animate={{
-          clipPath: hoverState.index !== null ? "inset(0% 0 0% 0)" : "inset(50% 0 50% 0)",
+          clipPath:
+            hoverState.index !== null ? "inset(0% 0 0% 0)" : "inset(50% 0 50% 0)",
         }}
         transition={{ duration, ease }}
       >
         <AnimatePresence>
-          {/* Using the safe activeProject variable here */}
           {activeProject && (
             <motion.div
               key={hoverState.id}
@@ -117,29 +243,43 @@ export default function HighlightsSection() {
               exit={{ y: "-40%" }}
               transition={{ duration, ease }}
             >
-              <motion.img
-                src={activeProject.img}
-                alt={activeProject.title}
-                className="w-full h-full object-cover"
+              <motion.div 
+                className="relative w-full h-full"
                 initial={{ scale: 1.35 }}
                 animate={{ scale: 1 }}
                 exit={{ scale: 1 }}
                 transition={{ duration, ease }}
-              />
+              >
+                <Image
+                  src={activeProject.img}
+                  alt={activeProject.title}
+                  fill
+                  sizes="(max-width: 768px) 35vw, 500px"
+                  className="object-cover"
+                />
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
       </motion.div>
 
-      {/* THE LIST */}
+      {/* The list */}
       <div
         className="relative z-30 flex flex-col w-full max-w-[92vw] xl:max-w-[1350px] mx-auto"
         onMouseLeave={handleMouseLeave}
       >
+        <div className="w-full flex justify-center mb-12">
+          <span className="text-[1.25rem] font-geist font-semibold uppercase tracking-widest text-accent">
+            Projects
+          </span>
+        </div>
+
         {projects.map((item, i) => (
           <div
             key={i}
-            className="group border-b border-black/10 first:border-t first:border-t-black/60 flex items-center h-[330px] cursor-pointer w-full"
+            className={`group border-b border-light/10 flex items-center h-[200px] cursor-pointer w-full ${
+              i === 0 ? "border-t border-t-light/60" : ""
+            }`}
             onMouseEnter={() => handleMouseEnter(i)}
           >
             <motion.div
@@ -149,13 +289,16 @@ export default function HighlightsSection() {
               }}
               transition={{ duration: 1.5, ease: [0.25, 1, 0.36, 1] }}
             >
-              <h2 className="text-[4rem] md:text-[5.5rem] lg:text-[7.25rem] font-durer uppercase leading-[0.85] tracking-tighter w-full max-w-[600px] lg:max-w-[900px]">
+              <h2 className="text-[3rem] md:text-[3.5rem] lg:text-[4.5rem] font-dirtyline leading-[0.85] tracking-normal w-full max-w-[600px] lg:max-w-[900px]">
                 {item.title}
               </h2>
             </motion.div>
           </div>
         ))}
       </div>
+
+      {/* Marquee component */}
+      <VelocityMarquee />
     </section>
   );
 }
